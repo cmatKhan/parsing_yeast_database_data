@@ -1,0 +1,9 @@
+Data downloaded from the following link on 20231116
+
+http://younglab.wi.mit.edu/regulatory_code/GWLD.html
+
+I pulled the 'Excel' versions of both the P values 
+(the downloaded file is called files_for_paper_abbr.zip)
+and Binding ratios (Ratio_forpaper_abbr.zip). Upon
+extracting the files from the zip, I retained the pvalbygene
+and ratiobygene files.

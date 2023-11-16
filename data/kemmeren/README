@@ -1,0 +1,33 @@
+downloaded from the following site on 20231116
+
+https://deleteome.holstegelab.nl/
+
+notes from the website:
+
+## Original data
+
+[deleteome_all_mutants_ex_wt_var_controls.txt]
+Tab-delimited file that contains both the M ratios (mutant/wildtype), A values
+and p values for all deletion mutants obtained through the limma statistical
+modeling approach. In addition, three control experiments, matA versus
+matAlpha, YPD versus SC and BY4343 versus BY4342 (diploid versus haploid) have
+been added for easier comparison to external datasets. The first two rows
+contain the name and data type (M, A or p value) for each experiment. The first
+three columns contain the reporterId, systematic name (ORF name) and standard
+gene symbol for every gene present on the DNA microarray. Wildtype variable
+genes (for details see Supplemental Methods) have been excluded from this
+dataset.
+
+[deleteome_all_mutants_controls.txt]
+Same as the above, except that the wildtype variable genes are not excluded.
+
+## Gene expression-profiles of all mutants - slow growth signature removed
+
+[deleteome_all_mutants_svd_transformed.txt]
+Transformed gene expression changes of all deletion mutants. Any similarity to
+the slow growth profile has been removed by subtracting the first SVD mode from
+the original data. Rows are transcripts, named by their systematic name,
+columns are gene deletion mutants, named by the common name of the gene that
+was deleted. Values are M values, that is, the log2(deletion mutant / wild
+type). For details see "Cell cycle population effects in perturbation studies",
+Molecular Systems Biology 2014 

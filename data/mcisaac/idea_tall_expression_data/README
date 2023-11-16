@@ -1,0 +1,14 @@
+downloaded the "raw & processed gene expression data"
+from the link below on 20231116
+
+https://idea.research.calicolabs.com/data
+
+the file is called: idea_tall_expression_data.tsv
+
+I xz compressed this file and then split it into
+parts no larger than 50MB to store on github.
+
+to re-create the original, uncompressed file, do
+the following:
+
+cat xa* | xz -d > idea_tall_expression_data.tsv
