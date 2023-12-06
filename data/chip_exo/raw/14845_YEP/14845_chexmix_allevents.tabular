@@ -1,0 +1,23 @@
+### ChExMix output
+#Condition	Name	Index	TotalSigCount	SignalFraction
+#Condition	YPD	0	795810.0	0.002
+#Replicate	ParentCond	Name	Index	SigCount	CtrlCount	SigCtrlScaling	SignalFraction
+#Replicate	YPD	YPD:1	0	795810.0	8310231.0	0.0910	0.002
+#
+#Point	YPD_Sig	YPD_Ctrl	YPD_log2Fold	YPD_log2P	ActiveConds
+chr12:490133	417.9	1932.5	1.249	-23.341	1
+chr12:490341	464.5	2198.9	1.215	-23.196	1
+chr12:490073	359.1	1675.3	1.236	-19.613	1
+chr12:489797	55.7	174.7	1.809	-9.812	1
+chr10:639213	25.3	50.1	2.475	-7.465	1
+chr3:168359	34.0	159.8	1.225	-3.122	1
+chr8:214688	70.4	391.2	0.983	-3.053	1
+chr8:213521	21.5	97.5	1.279	-2.802	1
+chr8:215660	38.9	207.9	1.039	-2.638	1
+chr8:215353	22.0	102.8	1.234	-2.289	1
+chr8:213137	21.8	104.2	1.203	-2.289	1
+chr8:213595	19.8	98.4	1.143	-2.220	1
+chr8:212625	52.1	312.6	0.875	-1.961	1
+chr1:12720	19.3	95.2	1.156	-1.950	1
+chr12:485752	22.2	127.2	0.939	-1.497	1
+chr8:214206	20.0	288.3	-0.389	0.000	1

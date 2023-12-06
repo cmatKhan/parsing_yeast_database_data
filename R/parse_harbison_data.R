@@ -97,3 +97,14 @@ combined_harbison_with_id_tf_id = combined_harbison_with_id %>%
   left_join(tf_name_df) %>%
   dplyr::rename(tf_id=id)
 
+# combined_harbison_with_id_tf_id %>%
+#   select(tf_id,cond,gene_id,binding_ratio,pval) %>%
+#   group_by(tf_id,cond) %>%
+#   group_walk(~{
+#     name=paste(.y[1,], collapse='_')
+#     message(name)
+#     write_csv(.x,file.path(here('data/harbison/by_tf'),
+#                            paste0(name,'.csv.gz')))
+#   })
+
+

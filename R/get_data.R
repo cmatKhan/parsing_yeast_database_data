@@ -6,9 +6,14 @@ library(jsonlite)
 library(future)
 library(furrr)
 
-get_data <- function(url, num_records = 10) {
+get_data <- function(url, token, num_records = 10) {
   # Set up future for parallel processing
   plan(multisession)
+
+  header <- httr::add_headers(
+    "Authorization" = paste("token", token, sep = " "),
+    "Content-Type" = "application/json"
+  )
 
   # Initial request to get total record count
   response <- GET(url, query = list(limit = 1))
@@ -19,9 +24,11 @@ get_data <- function(url, num_records = 10) {
 
   # Calculate the number of chunks
   num_chunks <- ceiling(total_records / num_records)
+  message(paste0('fetching: ', as.character(num_chunks)))
 
   # Function to fetch a chunk of data
   fetch_chunk <- function(chunk_id, num_records) {
+    message(paste0('fetching chunk: ', as.character(chunk_id)))
     offset <- (chunk_id - 1) * num_records
     params <- list(limit = num_records, offset = offset)
     response <- GET(url, query = params)
@@ -41,4 +48,5 @@ get_data <- function(url, num_records = 10) {
 
 # Example usage
 # url <- "http://3.143.144.93/api/v1/genes/"
-# result <- get_data(url, num_records = 500)
+# token = 'lakjsfdlkasjdf'
+# result <- get_data(url, token, num_records = 500)

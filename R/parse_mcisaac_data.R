@@ -1,7 +1,7 @@
 library(tidyverse)
 library(here)
 
-gene_table = read_csv("data/genes_table.csv")
+gene_table = read_csv("data/genes_table.csv.gz")
 
 # see the README in the mcisaac data directory
 df = read_tsv(here("data/mcisaac/idea_tall_expression_data.tsv")) %>%
@@ -49,11 +49,22 @@ mcisaac_gene_table = tmp %>%
   bind_rows(mcisaac_gene_aliases)
 
 mcisaac_with_ids = df %>%
+  mutate(date=str_remove_all(as.Date(date, format='%m/%d/%Y'),'-')) %>%
   left_join(tf_table) %>%
-  left_join(mcisaac_gene_table)
+  left_join(mcisaac_gene_table) %>%
+  select(tf_id,gene_id,strain,date,restriction,
+         mechanism,time,starts_with('log2'))
+
 
 x = mcisaac_with_ids %>%
-  select(tf_id,gene_id,strain,date,restriction,mechanism,time,starts_with('log2')) %>%
   group_by(tf_id,strain,date,restriction,mechanism,time) %>%
   group_split() %>%
   .[[1]]
+
+# mcisaac_with_ids %>%
+#   group_by(tf_id,strain,date,restriction,mechanism,time) %>%
+#   group_walk(~{
+#     write_csv(.x,
+#               file.path('data/mcisaac/by_tf',
+#                            paste0(paste(.y[1,],collapse='_'),
+#                                   '.csv.gz')))})
