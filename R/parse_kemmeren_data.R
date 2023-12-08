@@ -26,47 +26,51 @@ tf_map = read_csv(here('data/kemmeren/tf_map.csv.gz'))
 gene_map = read_csv(here('data/kemmeren/gene_map.csv.gz'))
 replicate_map = read_csv(here('data/kemmeren/replicate_table.csv.gz'))
 
-# deleteome_all_mutants_controls_headers =
-#   read_tsv(here('data/kemmeren/deleteome_all_mutants_controls.txt.xz'),
-#            n_max=1, name_repair='minimal') %>%
-#   add_datatype_to_colnames(skip_indicies=1:3) %>%
-#   colnames()
-#
-# deleteome_all_mutants_controls_headers = str_replace(deleteome_all_mutants_controls_headers,
-#                                                      ' vs\\.? ', ';')
-#
-#
+
+# the headers vector was created with the code below from the raw data
+# directly from the kemmeren site. It was used to read the full data set in
+# and turn it into a parquet directory b/c the data itself was too large
+# to store in github
+deleteome_all_mutants_controls_headers =
+  read_tsv(here('data/kemmeren/deleteome_all_mutants_controls.txt.xz'),
+           n_max=1, name_repair='minimal') %>%
+  add_datatype_to_colnames(skip_indicies=1:3) %>%
+  colnames()
+
+deleteome_all_mutants_controls_headers = str_replace(deleteome_all_mutants_controls_headers,
+                                                     ' vs\\.? ', ';')
+
 # this is necessary b/c there is one TF -- LUG1 and YLR352W -- which
 # are actually the same thing (LUG1 is YLR352W). There are no other replicates.
 # Regressing the Ms onto each other results in a significant association,
 # but the effect is small (.08, pval .00132)
-# replicate_table = read_csv(here('data/kemmeren/replicate_table.csv.gz'))
-# # this takes minutes to execute and ~19GB
-# deleteome_all_mutants_controls =
-#   read.delim(here('data/kemmeren/deleteome_all_mutants_controls.txt.xz'),
-#            sep='\t',
-#            skip=2,
-#            check.names=FALSE,
-#            col.names=deleteome_all_mutants_controls_headers) %>%
-#   as_tibble() %>%
-#   pivot_longer(-c(reporterId, systematicName, geneSymbol),
-#                names_to='sample_metric', values_to='values') %>%
-#   separate(sample_metric, c('sample', 'metric'), sep="_") %>%
-#   pivot_wider(names_from='metric', values_from='values') %>%
-#   separate_wider_delim(cols=sample,
-#                        names=c('mutant', 'control'),
-#                        delim=";") %>%
-#   separate_wider_delim(cols=mutant,
-#                        names=c('tf', 'perturbation'),
-#                        delim="-",
-#                        too_few='error',
-#                        too_many='merge') %>%
-#   mutate(tf = toupper(str_replace(tf,',',''))) %>%
-#   filter(tf != 'WT') %>%
-#   left_join(tf_map) %>%
-#   left_join(gene_map) %>%
-#   left_join(replicate_table)
-#
+replicate_table = read_csv(here('data/kemmeren/replicate_table.csv.gz'))
+# this takes minutes to execute and ~19GB
+deleteome_all_mutants_controls =
+  read.delim(here('data/kemmeren/deleteome_all_mutants_controls.txt.xz'),
+           sep='\t',
+           skip=2,
+           check.names=FALSE,
+           col.names=deleteome_all_mutants_controls_headers) %>%
+  as_tibble() %>%
+  pivot_longer(-c(reporterId, systematicName, geneSymbol),
+               names_to='sample_metric', values_to='values') %>%
+  separate(sample_metric, c('sample', 'metric'), sep="_") %>%
+  pivot_wider(names_from='metric', values_from='values') %>%
+  separate_wider_delim(cols=sample,
+                       names=c('mutant', 'control'),
+                       delim=";") %>%
+  separate_wider_delim(cols=mutant,
+                       names=c('tf', 'perturbation'),
+                       delim="-",
+                       too_few='error',
+                       too_many='merge') %>%
+  mutate(tf = toupper(str_replace(tf,',',''))) %>%
+  filter(tf != 'WT') %>%
+  left_join(tf_map) %>%
+  left_join(gene_map) %>%
+  left_join(replicate_table)
+
 # replicate_table = deleteome_all_mutants_controls %>%
 #   distinct(tf_id,tf) %>%
 #   group_by(tf_id) %>%
@@ -87,20 +91,6 @@ replicate_map = read_csv(here('data/kemmeren/replicate_table.csv.gz'))
 #   bind_rows(by_hand_gene_map) %>%
 #   dplyr::rename(gene_id=id) %>%
 #   write_csv(here('data/kemmeren/gene_map.csv.gz'))
-
-deleteome_all_mutants_controls = read_csv(
-  here('data/kemmeren/deleteome_all_mutants_controls_long_with_ids.csv.gz')) %>%
-  left_join(replicate_map)
-
-# deleteome_all_mutants_controls %>%
-#   filter(tf !='WT') %>%
-#   group_by(tf_id,replicate) %>%
-#   group_walk(~{
-#     message(paste(.y$tf_id,.y$replicate))
-#     write_csv(select(.x,tf_id,gene_id,M,A,pval),
-#               file.path(here('data/kemmeren/by_tf'),
-#                         paste0(paste(.y$tf_id,.y$replicate, sep="_"),
-#                                '.csv.gz')))},.keep = TRUE)
 
 deleteome_all_mutants_svd_transformed_headers =
   read_tsv(here('data/kemmeren/deleteome_all_mutants_svd_transformed.txt.xz'),
@@ -182,7 +172,10 @@ x = deleteome_all_mutants_controls %>%
     pval = min(pval),
     .groups = 'drop'
   ) %>%
-  group_by(tf_id,replicate)
+  group_by(tf_id,replicate) %>%
+  dplyr::rename(mechanism = perturbation) %>%
+  mutate(mechanism = ifelse(mechanism=='del', 'TFKO', mechanism),
+         control = str_replace(control,'-','_'))
 
 # x %>%
 #   group_walk(~{
