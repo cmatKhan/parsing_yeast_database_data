@@ -1,0 +1,27 @@
+Data downloaded from the following link on 20231116
+
+https://idea.research.calicolabs.com/data
+
+Quoted from their website:
+
+```raw
+For each of 10.4M gene expression observations, raw and progressively processed forms of the data are provided. The data are presented as a single tall-format table, with one observation per row.
+
+Variables are:
+
+    TF — induced transcriptional regulator
+    strain — strain name
+    date - date performed
+    restriction - nutrient limitation
+    mechanism - GEV vs ZEV induction system
+    time - time point (minutes)
+    GeneName gene names
+    green_median - median of green (reference) channel fluorescence
+    red_median - median of red (experimental) channel fluorescence
+    log2_ratio - log2(red / green) subtracting value at time zero
+    log2_cleaned_ratio - Non-specific stress response and prominent outliers removed
+    log2_noise_model - estimated noise standard deviation
+    log2_cleaned_ratio_zth2d - cleaned timecourses hard-thresholded based on multiple observations (or last observation) passing the noise model
+    log2_selected_timecourses - cleaned timecourses hard-thresholded based on single observations passing noise model and impulse evaluation of biological feasibility
+    log2_shrunken_timecourses - selected timecourses with observation-level shrinkage based on local FDR (false discovery rate). Most users of the data will want to use this column.
+```
