@@ -1,7 +1,9 @@
 library(tidyverse)
 library(here)
+library(httr)
+library(jsonlite)
 
-gene_table = read_csv("data/genes_table.csv.gz")
+gene_table = read_csv("data/genome_files/genes_table.csv.gz")
 
 # see the README in the mcisaac data directory
 df = read_tsv(here("data/mcisaac/idea_tall_expression_data.tsv")) %>%
@@ -52,7 +54,7 @@ mcisaac_with_ids = df %>%
   mutate(date=str_remove_all(as.Date(date, format='%m/%d/%Y'),'-')) %>%
   left_join(tf_table) %>%
   left_join(mcisaac_gene_table) %>%
-  select(tf_id,gene_id,strain,date,restriction,
+  select(TF, tf_id,gene_id,strain,date,restriction,
          mechanism,time,starts_with('log2'))
 
 
@@ -62,9 +64,56 @@ x = mcisaac_with_ids %>%
   .[[1]]
 
 # mcisaac_with_ids %>%
+#   mutate(
+#     across(starts_with("log2_"), ~format(., nsmall = 1))
+#   ) %>%
 #   group_by(tf_id,strain,date,restriction,mechanism,time) %>%
 #   group_walk(~{
 #     write_csv(.x,
 #               file.path('data/mcisaac/by_tf',
 #                            paste0(paste(.y[1,],collapse='_'),
 #                                   '.csv.gz')))})
+
+mcisaac_with_ids_upload_df = mcisaac_with_ids %>%
+  group_by(tf_id, TF, strain, date, restriction, mechanism, time) %>%
+  tally() %>%
+  mutate(file = file.path('data/mcisaac/by_tf',
+                          paste0(tf_id, "_", strain, "_", date, "_",
+                                 restriction, "_", mechanism, "_", time, ".csv.gz")))
+
+
+prepare_http_upload <- function(row) {
+
+  stopifnot(file.exists(row$file))
+
+  # Extract data from the row
+  list(
+    mechanism = tolower(row$mechanism),
+    restriction = row$restriction,
+    time = row$time,
+    file = httr::upload_file(row$file,type="application/gzip"),
+    regulator_symbol = row$TF,
+    strain = row$strain,
+    source_name = 'mcisaac_oe',
+    notes = paste0('strain_id:', row$strain, ' ; ', 'date:', row$date)
+  )
+
+
+}
+
+url = "http://127.0.0.1:8000/api/expression/"
+
+token = Sys.getenv('local_token')
+
+header <- httr::add_headers(
+"Authorization" = paste("token", token, sep = " ")
+)
+
+# response_list = map(1:nrow(mcisaac_with_ids_upload_df), function(i) {
+#   message(i)
+#   body_data = prepare_http_upload(mcisaac_with_ids_upload_df[i,])
+#   res = POST(url, config = timeout(180), header, body = body_data, encode = "multipart")
+#   message(httr::status_code(res))
+#   res
+# })
+

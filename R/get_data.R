@@ -16,7 +16,7 @@ get_data <- function(url, token, num_records = 10) {
   )
 
   # Initial request to get total record count
-  response <- GET(url, query = list(limit = 1))
+  response <- GET(url, query = list(limit = 1), header)
   if(status_code(response) != 200) {
     stop("Failed to fetch data: ", status_code(response))
   }
@@ -50,3 +50,46 @@ get_data <- function(url, token, num_records = 10) {
 # url <- "http://3.143.144.93/api/v1/genes/"
 # token = 'lakjsfdlkasjdf'
 # result <- get_data(url, token, num_records = 500)
+
+
+recursive_get <- function(url, header, res_vector = list()) {
+  res <- httr::GET(url, header)
+
+  # Append the current response to the result vector
+  res_vector <- c(res_vector, list(res))
+
+  # Extract 'next' URL from the response
+  next_url <- httr::content(res)$`next`
+
+  # Recursive call if 'next' URL exists
+  if (!is.null(next_url)) {
+    res_vector <- recursive_get(next_url, header, res_vector)
+  }
+
+  return(res_vector)
+}
+
+# res = recursive_get(url,header)
+# in example of binding endpoint, `file` was sometimes NULL
+# for each result object, process prior to transforming to
+# dataframe
+
+process_binding_results = function(res) {
+  map(httr::content(res)$`results`, ~{
+    if(is.null(.x$file)) {
+      .x$file <- ''
+    }
+    .x
+  }) %>%
+    map_dfr(as_tibble)
+}
+
+# Example usage
+# bind_rows(map(res, process_binding_results))
+
+# to delete all rows
+# delete_row = function(id,...){
+#   delete_url = paste0(url,id,'/')
+#   message(delete_url)
+#   httr::DELETE(delete_url,header)
+# }

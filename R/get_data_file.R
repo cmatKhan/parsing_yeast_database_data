@@ -34,6 +34,8 @@ get_data_file <- function(url, token, params_list, directory_path) {
   return(invisible())
 }
 
+# hops_s3_url = "http://ec2-3-143-144-93.us-east-2.compute.amazonaws.com/api/v1/hops_s3/"
+
 # Example usage
 # url <- "http://example.com/api/data"
 # params_list <- list(experiment_id=32, promoter_source='yiming', background_source='adh1', hops_source='nf-core/callingcards:dev')

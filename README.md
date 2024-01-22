@@ -62,3 +62,9 @@ See `data/hu`
 
 This data was downloaded from the supplement 1B and 1C of the paper cited above
 
+# Promoter sets
+
+There are two legacy promoter sets. The first is one Yiming Kang produced in
+the Brent lab. I do not have the code for this. The other is from the Mitra
+lab and is the intergenic (not open reading frame) regions from sacCer3. This
+code is available upon request

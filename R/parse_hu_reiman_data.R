@@ -1,7 +1,8 @@
 library(tidyverse)
+library(httr)
 library(here)
 
-genes_table = read_csv(here('data/genes_table.csv.gz'))
+genes_table = read_csv(here('data/genome_files/genomicfeature_tbl.csv.gz'))
 
 hu_data = list(
   de = here("data/hu/gkq232_SuppTable1C_KOTargetGenes_Matrix_LogFoldChange.dat.xz"),
@@ -48,9 +49,9 @@ hu_df = de_df %>%
 gene_name_tf_map = hu_df %>%
   distinct(tf) %>%
   left_join(genes_table %>%
-              select(gene,id) %>%
+              select(symbol,id) %>%
               dplyr::rename(tf_id=id),
-            by = c('tf' = 'gene'))
+            by = c('tf' = 'symbol'))
 
 locus_tag_tf_map = gene_name_tf_map %>%
   filter(is.na(tf_id)) %>%
@@ -107,3 +108,50 @@ hu_df_with_ids = hu_df %>%
 #   group_walk(~write_csv(.x,file.path(here('data/hu/tf_split'),
 #                                     paste0(.y,'.csv.gz'))))
 #
+
+
+hu_upload_df = hu_df_with_ids %>%
+  tally() %>%
+  left_join(select(genes_table, id,locus_tag) %>% dplyr::rename(tf_id=id, tf_locus_tag=locus_tag)) %>%
+  mutate(file  = file.path('data/hu/tf_split', paste0(tf_id,'.csv.gz')))
+
+prepare_http_upload <- function(row) {
+
+  stopifnot(file.exists(row$file))
+
+  # Extract data from the row
+  list(
+    regulator_locus_tag = row$tf_locus_tag,
+    file = httr::upload_file(row$file,type="application/gzip"),
+    source_name="hu_reimann_tfko"
+  )
+}
+
+url = "http://127.0.0.1:8000/api/expression/"
+
+token = Sys.getenv('local_token')
+
+header <- httr::add_headers(
+  "Authorization" = paste("token", token, sep = " ")
+)
+nrow(hu_upload_df)
+response_list = map(1:nrow(hu_upload_df), function(i) {
+  message(paste0(i, ': ', hu_upload_df[i,]))
+  body_data = prepare_http_upload(hu_upload_df[i,])
+  res = POST(url, config = timeout(180), header, body = body_data, encode = "multipart")
+  message(httr::status_code(res))
+  res
+})
+#
+# hu_expression_df = GET(paste0(url,'export/'),query = list(source_id=1), header) %>%
+#   httr::content() %>%
+#   filter(source_id==4)
+#
+# delete_row <- function(id, ...) {
+#   message(paste0('deleting id: ', as.character(id)))
+#   delete_url <- paste0(url, id)
+#   httr::DELETE(delete_url, header)
+# }
+#
+# responses <- pmap(hu_expression_df, delete_row)
+
