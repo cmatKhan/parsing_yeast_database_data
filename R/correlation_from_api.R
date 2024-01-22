@@ -3,6 +3,7 @@ library(httr)
 library(here)
 
 source(here('R/get_combined_data.R'))
+source(here('R/summarize_binding_expression_by_tf.R'))
 
 url_generator = function(endpiont){
   base = "http://127.0.0.1:8000/api/"
