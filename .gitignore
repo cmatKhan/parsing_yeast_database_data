@@ -5,7 +5,3 @@
 .DS_Store
 .quarto
 .Renviron
-data/kemmeren/by_tf/
-data/mcisaac/by_tf/
-data/chip_exo/parsed/
-data/hu/tf_split/
